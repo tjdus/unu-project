@@ -31,7 +31,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
-      TZ: Asia/Seoul
     depends_on:
       postgres:
         condition: service_healthy
