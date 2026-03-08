@@ -8,7 +8,7 @@ EMAIL="dusml0277@gmail.com"
 STAGING=0  # 테스트시 1로 변경
 
 # 도메인/이메일 확인
-if [ "$DOMAIN" = "cnu-nu.com" ] || [ "$EMAIL" = "your-email@example.com" ]; then
+if [ "$DOMAIN" = "your-domain.com" ] || [ "$EMAIL" = "your-email@example.com" ]; then
     echo "[오류] DOMAIN과 EMAIL을 실제 값으로 변경하세요!"
     exit 1
 fi
@@ -22,8 +22,12 @@ mkdir -p nginx/certbot/conf nginx/certbot/www
 cp nginx/nginx.conf nginx/nginx-ssl.conf.backup
 cp nginx/nginx-init.conf nginx/nginx.conf
 
-# 도메인 설정
-sed -i '' "s/cnu-nu.com/${DOMAIN}/g" nginx/nginx-ssl.conf.backup
+# 도메인 설정 (Linux/macOS 호환)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/your-domain.com/${DOMAIN}/g" nginx/nginx-ssl.conf.backup
+else
+    sed -i "s/your-domain.com/${DOMAIN}/g" nginx/nginx-ssl.conf.backup
+fi
 
 # nginx 시작
 docker compose up -d nginx
