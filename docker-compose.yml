@@ -19,7 +19,7 @@ services:
 
   # ── Spring Boot Backend ──────────────────────────────────────────────────────
   backend:
-    image: whatdagodda/unu-backend:latest
+    image: ghcr.io/tjdus/unu-backend:latest
     container_name: unu_backend
     env_file: .env
     environment:
@@ -35,7 +35,7 @@ services:
 
   # ── Next.js Frontend ─────────────────────────────────────────────────────────
   frontend:
-    image: whatdagodda/unu-frontend:latest
+    image: ghcr.io/tjdus/unu-frontend:latest
     container_name: unu_frontend
     env_file: .env
     depends_on:
