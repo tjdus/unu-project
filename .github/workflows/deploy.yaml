@@ -1,9 +1,10 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - deploy
+  workflow_run:
+    workflows: ["Build and Push Images"]
+    types:
+      - completed
 
 concurrency:
   group: deploy-production
@@ -26,7 +27,9 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
-          docker compose up -d --build
+          docker compose pull
+          docker compose up -d
+
           docker compose ps
 
       - name: Notify Slack on success
