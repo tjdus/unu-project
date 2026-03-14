@@ -1,4 +1,4 @@
-name: Deploy via SSH
+name: Deploy
 
 on:
   push:
@@ -11,64 +11,34 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      - name: Start SSH agent and add key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
-
-      - name: Add server to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
       - name: Deploy on server
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e
+          set -e
+          cd /home/deploy/app/unu-project
 
-            cd ${{ secrets.APP_DIR }}
+          git fetch origin
+          git checkout deploy
+          git pull origin deploy
 
-            echo "[1] fetch latest source"
-            git fetch origin
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
-            echo "[2] checkout target branch"
-            git checkout deploy
-            git pull origin deploy
-
-            echo "[3] sync and update submodules"
-            git submodule sync --recursive
-            git submodule update --init --recursive --remote
-
-            echo "[4] deploy with docker compose"
-            docker compose up -d --build
-
-            echo "[5] show container status"
-            docker compose ps
-          EOF
+          docker compose up -d --build
+          docker compose ps
 
       - name: Notify Slack on success
         if: success()
         run: |
           curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
-            --data "$(cat <<JSON
-          {
-            "text": "✅ 배포 성공\n- repo: ${{ github.repository }}\n- branch: ${{ github.ref_name }}\n- actor: ${{ github.actor }}\n- commit: ${{ github.sha }}"
-          }
-          JSON
-          )"
+            --data "{\"text\":\"✅ 배포 성공\nrepo: ${{ github.repository }}\nbranch: ${{ github.ref_name }}\nactor: ${{ github.actor }}\ncommit: ${{ github.sha }}\"}"
 
       - name: Notify Slack on failure
         if: failure()
         run: |
           curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
-            --data "$(cat <<JSON
-          {
-            "text": "❌ 배포 실패\n- repo: ${{ github.repository }}\n- branch: ${{ github.ref_name }}\n- actor: ${{ github.actor }}\n- commit: ${{ github.sha }}"
-          }
-          JSON
-          )"
+            --data "{\"text\":\"❌ 배포 실패\nrepo: ${{ github.repository }}\nbranch: ${{ github.ref_name }}\nactor: ${{ github.actor }}\ncommit: ${{ github.sha }}\"}"
