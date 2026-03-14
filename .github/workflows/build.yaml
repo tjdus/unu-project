@@ -9,27 +9,26 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      packages: write
       contents: read
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo + submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Login GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build backend
-        run: |
-          docker build -t ghcr.io/tjdus/unu-backend:latest ./backend
+      - name: Build backend image
+        run: docker build -t ghcr.io/tjdus/unu-backend:latest ./backend
 
-      - name: Push backend
-        run: |
-          docker push ghcr.io/tjdus/unu-backend:latest
+      - name: Push backend image
+        run: docker push ghcr.io/tjdus/unu-backend:latest
 
-      - name: Build frontend
-        run: |
-          docker build -t ghcr.io/tjdus/unu-frontend:latest ./frontend
+      - name: Build frontend image
+        run: docker build -t ghcr.io/tjdus/unu-frontend:latest ./frontend
 
-      - name: Push frontend
-        run: |
-          docker push ghcr.io/tjdus/unu-frontend:latest
+      - name: Push frontend image
+        run: docker push ghcr.io/tjdus/unu-frontend:latest
