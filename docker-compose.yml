@@ -19,9 +19,7 @@ services:
 
   # ── Spring Boot Backend ──────────────────────────────────────────────────────
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: whatdagodda/unu-backend:latest
     container_name: unu_backend
     env_file: .env
     environment:
@@ -37,11 +35,7 @@ services:
 
   # ── Next.js Frontend ─────────────────────────────────────────────────────────
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    image: whatdagodda/unu-frontend:latest
     container_name: unu_frontend
     env_file: .env
     depends_on:
@@ -61,7 +55,7 @@ services:
     depends_on:
       - frontend
       - backend
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
 
   # ── Certbot (SSL Certificate) ────────────────────────────────────────────────
   certbot:
