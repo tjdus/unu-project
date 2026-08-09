@@ -28,7 +28,13 @@ jobs:
         run: docker push ghcr.io/tjdus/unu-backend:latest
 
       - name: Build frontend image
-        run: docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} -t ghcr.io/tjdus/unu-frontend:latest ./frontend
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
+            --build-arg NEXT_PUBLIC_ONLINE_LECTURE_ACCESS_CODE=${{ secrets.NEXT_PUBLIC_ONLINE_LECTURE_ACCESS_CODE }} \
+            -t ghcr.io/tjdus/unu-frontend:latest ./frontend
 
       - name: Push frontend image
         run: docker push ghcr.io/tjdus/unu-frontend:latest

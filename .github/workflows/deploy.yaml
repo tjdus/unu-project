@@ -27,6 +27,10 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
+          grep -v '^SUPABASE_SERVICE_ROLE_KEY=' .env > .env.tmp || true
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.tmp
+          mv .env.tmp .env
+
           docker compose pull
           docker compose up -d
 
