@@ -27,8 +27,9 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
-          grep -v '^SUPABASE_SERVICE_ROLE_KEY=' .env > .env.tmp || true
+          grep -v -E '^(SUPABASE_SERVICE_ROLE_KEY|ONLINE_LECTURE_ACCESS_CODE)=' .env > .env.tmp || true
           echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.tmp
+          echo "ONLINE_LECTURE_ACCESS_CODE=${{ secrets.NEXT_PUBLIC_ONLINE_LECTURE_ACCESS_CODE }}" >> .env.tmp
           mv .env.tmp .env
 
           docker compose pull

@@ -43,6 +43,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      BACKEND_API_URL: http://backend:8080/api
       # Cap V8 heap so a leak/spike fails fast and gets restarted instead of
       # growing until it takes down the whole host.
       NODE_OPTIONS: "--max-old-space-size=384"
