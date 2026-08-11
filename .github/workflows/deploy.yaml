@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
     steps:
@@ -32,8 +33,29 @@ jobs:
           echo "ONLINE_LECTURE_ACCESS_CODE=${{ secrets.NEXT_PUBLIC_ONLINE_LECTURE_ACCESS_CODE }}" >> .env.tmp
           mv .env.tmp .env
 
+          UPLOAD_BACKUP_DIR=""
+          cleanup_upload_backup() {
+            if [ -n "${UPLOAD_BACKUP_DIR:-}" ]; then
+              rm -rf "$UPLOAD_BACKUP_DIR"
+            fi
+          }
+          trap cleanup_upload_backup EXIT
+
+          if docker container inspect unu_backend >/dev/null 2>&1; then
+            UPLOAD_MOUNT="$(docker container inspect --format '{{range .Mounts}}{{if eq .Destination "/app/uploads"}}{{.Destination}}{{end}}{{end}}' unu_backend)"
+            if [ -z "$UPLOAD_MOUNT" ]; then
+              UPLOAD_BACKUP_DIR="$(mktemp -d)"
+              docker cp unu_backend:/app/uploads/. "$UPLOAD_BACKUP_DIR/"
+            fi
+          fi
+
           docker compose pull
           docker compose up -d
+
+          if [ -n "$UPLOAD_BACKUP_DIR" ]; then
+            docker cp "$UPLOAD_BACKUP_DIR/." unu_backend:/app/uploads/
+            docker exec -u 0 unu_backend chown -R 1001:1001 /app/uploads
+          fi
 
           docker compose exec -T nginx nginx -t
           docker compose restart nginx
