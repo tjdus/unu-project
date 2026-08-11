@@ -32,6 +32,9 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
       APP_BASE_URL: ${APP_BASE_URL:-https://cnu-nu.com}
+      IMAGE_UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -89,3 +92,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
